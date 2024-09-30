@@ -15,27 +15,29 @@ RAG_PROMPT = (
 )
 
 based_args_model = {
-        "load_in_8bit": True,
-        "torch_dtype": torch.bfloat16,
-        "device_map": "auto",
-        "attn_implementation": "flash_attention_2"}
+    "load_in_8bit": True,
+    "torch_dtype": torch.bfloat16,
+    "device_map": "auto"}
+#        "attn_implementation": "flash_attention_2"}
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 app = Flask(__name__)
 
 parser = argparse.ArgumentParser(description='Run a Flask application.')
-parser.add_argument('--llm', type=str, default='IlyaGusev/saiga_llama3_8b', help='поменять модель')
-parser.add_argument('--embedder', type=str, default='deepvk/USER-bge-m3', help='поменять модель')
-parser.add_argument('--flashdown', type=int, default=0, help='Отключить flash attention, если есть проблемы с установкой')
+parser.add_argument(
+    '--llm', type=str, default='IlyaGusev/saiga_llama3_8b', help='поменять модель')
+parser.add_argument('--embedder', type=str,
+                    default='deepvk/USER-bge-m3', help='поменять модель')
+# parser.add_argument('--flashdown', type=int, default=0, help='Отключить flash attention, если есть проблемы с установкой')
 args = parser.parse_args()
 
 embedder_model = get_embedder(args.embedder)
 llm, tokenizer, generation_config = None, None, None
-if args.flashdown:
+if device == 'cuda':
     llm, tokenizer, generation_config = get_llm(llm_hf_name=args.llm,
-                                      model_args=based_args_model.pop("attn_implementation"))
+                                                model_args=based_args_model)
 else:
-    llm, tokenizer, generation_config = get_llm(llm_hf_name=args.llm,
-                                          model_args=based_args_model)
+    llm, tokenizer, generation_config = get_llm(llm_hf_name=args.llm)
 
 
 @app.route('/submit', methods=['POST'])
@@ -44,26 +46,24 @@ def submit_strings():
 
     context = data['context']
     question = data['question']
-    
-    #такие настройки обеспечивают оптимальный скор
+
+    # такие настройки обеспечивают оптимальный скор
     Answer = pipeline_rag_answer(
-       llm=llm, 
-       tokenizer=tokenizer,
-       question=question,
-       embedder_model=embedder_model,
-       context=context,
-       generation_config=generation_config,
-       pipeline=pipeline,
-       prompt=RAG_PROMPT,  
-       retriever_pipeline=hybrid_retriever,
-       k=15
+        llm=llm,
+        tokenizer=tokenizer,
+        question=question,
+        embedder_model=embedder_model,
+        context=context,
+        generation_config=generation_config,
+        pipeline=pipeline,
+        prompt=RAG_PROMPT,
+        retriever_pipeline=hybrid_retriever,
+        k=15
     )
-    
-    
+
     return jsonify({
         'Answer': Answer
     }), 200
-
 
 
 if __name__ == '__main__':

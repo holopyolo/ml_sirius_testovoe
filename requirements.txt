@@ -1,9 +1,9 @@
+Flask
 transformers
 pip
 setuptools
 wheel
 bitsandbytes
-flash-attn
 accelerate
 huggingface-hub==0.24.0
 torchmetrics
