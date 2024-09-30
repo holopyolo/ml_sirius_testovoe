@@ -35,7 +35,7 @@ pip install -r requirements.txt
 docker build -t flask-rag-app .
 
 
-## Configuration
+## Конфигурация
 
 ### Command Line Arguments
 
@@ -69,7 +69,7 @@ python app.py
 
 ### Response
 
-The response will be in JSON format:
+Ответ будет в таком формате:
 
 {
     "Answer": "ответ на запрос."
