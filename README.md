@@ -3,7 +3,7 @@
 ## Обзор
 
 Этот репозиторий содержит приложение Flask, которое использует модель расширенной генерации (RAG) для ответа на вопросы на основе предоставленного длинного контекста. Приложение предназначено для запуска локально или в контейнере Docker. 
-[DOCKER HUB](https://hub.docker.com/repository/docker/asdawdsasd/mlsiriustestovoe2/general)
+[DOCKER HUB](https://hub.docker.com/r/asdawdsasd/mlsiriustestovoe2)
 ## Способ решения
 
 - На основе предоставленного вопроса генерируются похожие 2-3
